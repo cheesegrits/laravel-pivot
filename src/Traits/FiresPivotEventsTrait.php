@@ -4,14 +4,14 @@ namespace Fico7489\Laravel\Pivot\Traits;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection as BaseCollection;
 
 trait FiresPivotEventsTrait
 {
     /**
      * Attach a model to the parent.
      *
-     * @param mixed $id
-     * @param bool  $touch
+     * @param bool $touch
      */
     public function attach($ids, array $attributes = [], $touch = true)
     {
@@ -30,8 +30,7 @@ trait FiresPivotEventsTrait
     /**
      * Detach models from the relationship.
      *
-     * @param mixed $ids
-     * @param bool  $touch
+     * @param bool $touch
      *
      * @return int
      */
@@ -56,8 +55,7 @@ trait FiresPivotEventsTrait
     /**
      * Update an existing pivot record on the table.
      *
-     * @param mixed $id
-     * @param bool  $touch
+     * @param bool $touch
      *
      * @return int
      */
@@ -79,7 +77,6 @@ trait FiresPivotEventsTrait
      * Cleans the ids and ids with attributes
      * Returns an array with and array of ids and array of id => attributes.
      *
-     * @param mixed $id
      * @param array $attributes
      *
      * @return array
@@ -94,9 +91,11 @@ trait FiresPivotEventsTrait
             foreach ($id as $model) {
                 $ids[$model->getKey()] = $attributes;
             }
-        } elseif (is_array($id)) {
+        } elseif (is_array($id) || $id instanceof BaseCollection) {
             foreach ($id as $key => $attributesArray) {
-                if (is_array($attributesArray)) {
+                if ($attributesArray instanceof Model) {
+                    $ids[$attributesArray->getKey()] = $attributes;
+                } elseif (is_array($attributesArray)) {
                     $ids[$key] = array_merge($attributes, $attributesArray);
                 } else {
                     $ids[$attributesArray] = $attributes;
